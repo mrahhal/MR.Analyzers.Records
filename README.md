@@ -8,10 +8,14 @@ Analyzers relating to records.
 
 ## Usage
 
+Not published yet.
+
+<!--
 Add the following in any ItemGroup in your csproj:
 ```xml
 <PackageReference Include="MR.Analyzers.Records" Version="1.0.0" PrivateAssets="All" />
 ```
+-->
 
 ## Rules
 
