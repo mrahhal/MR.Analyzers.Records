@@ -28,7 +28,8 @@ public class ConvertClassToRecordAnalyzer : DiagnosticAnalyzer
 		// Change the message if there's a property that can be mutated.
 
 		var members = classNode.Members;
-		if (members.Any(m => !m.IsKind(SyntaxKind.PropertyDeclaration)))
+		if (members.Any(m => !m.IsKind(SyntaxKind.PropertyDeclaration)) ||
+			!members.Where(m => m.IsKind(SyntaxKind.PropertyDeclaration)).Any())
 		{
 			return;
 		}

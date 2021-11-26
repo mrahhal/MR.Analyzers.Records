@@ -5,4 +5,4 @@
 
 Rule ID | Category | Severity | Notes
 --------|----------|----------|-------
-MRR1000 | Conversion | Info | ConvertClassToRecord
+MRR1000 | Conversion | Hidden | ConvertClassToRecord

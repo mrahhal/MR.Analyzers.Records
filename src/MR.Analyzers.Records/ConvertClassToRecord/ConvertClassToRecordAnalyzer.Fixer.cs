@@ -41,19 +41,39 @@ public class ConvertClassToRecordCodeFixProvider : CodeFixProvider
 
 	private Task<Document> ConvertClassToRecordAsync(Document document, SyntaxNode root, ClassDeclarationSyntax classNode, CancellationToken cancellationToken)
 	{
-		var parameterListO = classNode.Members.Cast<PropertyDeclarationSyntax>().Select(m =>
+		var propertyDeclarations = classNode.Members.Cast<PropertyDeclarationSyntax>();
+		var indentationTrivia = propertyDeclarations.First()
+			.DescendantTrivia().First(t => t.IsKind(SyntaxKind.WhitespaceTrivia));
+
+		var parameterList = SyntaxFactory.ParameterList()
+			.AddParameters(propertyDeclarations.Select(m => SyntaxFactory.Parameter(
+				new SyntaxList<AttributeListSyntax>(
+					m.AttributeLists.Select(a => a.WithTrailingTrivia(SyntaxFactory.Space))),
+				default,
+				m.Type,
+				m.Identifier,
+				default).WithLeadingTrivia(indentationTrivia)).ToArray())
+			.WithOpenParenToken(SyntaxFactory.Token(SyntaxKind.OpenParenToken)
+				.WithTrailingTrivia(EndOfLineHelper.EndOfLine));
+
+		var commaTokens = parameterList.ChildTokens().Where(t => t.IsKind(SyntaxKind.CommaToken));
+		parameterList = parameterList.ReplaceTokens(commaTokens, (t, _) =>
 		{
-			return SyntaxFactory.Parameter(m.AttributeLists, m.Modifiers, m.Type, m.Identifier, null);
-		}).ToArray();
-		var parameterList = SyntaxFactory.ParameterList().AddParameters(parameterListO);
+			return t.WithTrailingTrivia(EndOfLineHelper.EndOfLine);
+		});
 
 		var recordNode = SyntaxFactory.RecordDeclaration(
-			SyntaxKind.RecordKeyword,
+			SyntaxKind.RecordDeclaration,
 			classNode.AttributeLists, classNode.Modifiers,
-			classNode.Keyword, classNode.Identifier,
+			SyntaxFactory.Token(SyntaxKind.RecordKeyword),
+			default,
+			classNode.Identifier.WithoutTrivia(),
 			classNode.TypeParameterList, parameterList,
 			classNode.BaseList, classNode.ConstraintClauses,
-			 new SyntaxList<MemberDeclarationSyntax>());
+			default,
+			default,
+			default,
+			SyntaxFactory.Token(SyntaxKind.SemicolonToken));
 
 		var newRoot = root.ReplaceNode(classNode, recordNode);
 		var newDocument = document.WithSyntaxRoot(newRoot);

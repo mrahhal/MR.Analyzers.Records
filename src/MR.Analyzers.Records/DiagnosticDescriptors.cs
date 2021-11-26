@@ -14,6 +14,6 @@ public static class DiagnosticDescriptors
 		"Convert class to record",
 		"Convert class to record",
 		Categories.Conversion,
-		DiagnosticSeverity.Info,
+		DiagnosticSeverity.Hidden,
 		isEnabledByDefault: true);
 }
