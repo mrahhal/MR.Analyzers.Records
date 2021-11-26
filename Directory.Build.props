@@ -1,0 +1,13 @@
+﻿<Project>
+
+  <PropertyGroup>
+    <Product>MR.Analyzers.Records</Product>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <RepositoryUrl>https://github.com/mrahhal/MR.Analyzers.Records</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Mohammad Rahhal</Authors>
+    <PackageProjectUrl>https://github.com/mrahhal/MR.Analyzers.Records</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>
