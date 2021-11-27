@@ -27,10 +27,13 @@ public class ConvertClassToRecordAnalyzer : DiagnosticAnalyzer
 		// Report if the class has only auto properties.
 		// Change the message if there's a property that can be mutated.
 
-		var members = classNode.Members;
-		if (members.Any(m => !m.IsKind(SyntaxKind.PropertyDeclaration)) ||
-			!members.Where(m => m.IsKind(SyntaxKind.PropertyDeclaration)).Any())
+		var propertyDeclarations = classNode.Members
+			.Where(m => m.IsKind(SyntaxKind.PropertyDeclaration))
+			.ToList();
+
+		if (propertyDeclarations.Count != classNode.Members.Count)
 		{
+			// There are other members beside properties.
 			return;
 		}
 

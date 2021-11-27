@@ -42,17 +42,27 @@ public class ConvertClassToRecordCodeFixProvider : CodeFixProvider
 	private Task<Document> ConvertClassToRecordAsync(Document document, SyntaxNode root, ClassDeclarationSyntax classNode, CancellationToken cancellationToken)
 	{
 		var propertyDeclarations = classNode.Members.Cast<PropertyDeclarationSyntax>();
-		var indentationTrivia = propertyDeclarations.First()
-			.DescendantTrivia().First(t => t.IsKind(SyntaxKind.WhitespaceTrivia));
+		var indentationTrivia = propertyDeclarations
+			.FirstOrDefault()
+			?.DescendantTrivia()
+			.First(t => t.IsKind(SyntaxKind.WhitespaceTrivia)) ?? SyntaxFactory.Tab;
+
+		var ConvertPropertyDeclarationToParameter = (PropertyDeclarationSyntax p) =>
+			SyntaxFactory.Parameter(
+				new SyntaxList<AttributeListSyntax>(
+					p.AttributeLists.Select(a => a.WithTrailingTrivia(SyntaxFactory.Space))),
+				default,
+				p.Type,
+				p.Identifier,
+				default)
+				.WithLeadingTrivia(indentationTrivia);
+
+		var parameters = propertyDeclarations
+			.Select(p => ConvertPropertyDeclarationToParameter(p))
+			.ToArray();
 
 		var parameterList = SyntaxFactory.ParameterList()
-			.AddParameters(propertyDeclarations.Select(m => SyntaxFactory.Parameter(
-				new SyntaxList<AttributeListSyntax>(
-					m.AttributeLists.Select(a => a.WithTrailingTrivia(SyntaxFactory.Space))),
-				default,
-				m.Type,
-				m.Identifier,
-				default).WithLeadingTrivia(indentationTrivia)).ToArray())
+			.AddParameters(parameters)
 			.WithOpenParenToken(SyntaxFactory.Token(SyntaxKind.OpenParenToken)
 				.WithTrailingTrivia(EndOfLineHelper.EndOfLine));
 
